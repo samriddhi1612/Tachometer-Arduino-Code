@@ -5,7 +5,7 @@ float totalRpm = 0;                     // Sum of RPM values for averaging
 unsigned long prevTime = 0;             // Time of last interval
 int intervalIndex = 0;                  // Index to track intervals
 const int interval = 1000;              // Interval duration in milliseconds
-int pulsesPerRevolution = 3;            // Number of hands of the fan
+int pulsesPerRevolution = 1;            // Number of hands of the fan
 unsigned long lastPulseTime = 0;        // Time of last pulse to debounce
 const unsigned long debounceDelay = 10; // Debounce delay in milliseconds
 
