@@ -1,0 +1,58 @@
+#define SENSOR_PIN 2
+unsigned long count = 0;                // Pulse count
+float rpmArray[10] = {0};               // Array to store RPM values
+float totalRpm = 0;                     // Sum of RPM values for averaging
+unsigned long prevTime = 0;             // Time of last interval
+int intervalIndex = 0;                  // Index to track intervals
+const int interval = 1000;              // Interval duration in milliseconds
+int pulsesPerRevolution = 3;            // Number of hands of the fan
+unsigned long lastPulseTime = 0;        // Time of last pulse to debounce
+const unsigned long debounceDelay = 10; // Debounce delay in milliseconds
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(SENSOR_PIN, INPUT_PULLUP);    
+}
+
+void loop() {
+  unsigned long curTime = millis();
+
+  // Check for a LOW signal (adjust if using pull-up resistor)
+  if (digitalRead(SENSOR_PIN) == LOW && (curTime - lastPulseTime) > debounceDelay) {
+    count++;
+    lastPulseTime = curTime; // Update last pulse time for debounce
+  }
+
+  if (curTime - prevTime >= interval) {
+    // Calculate RPM for the interval
+    float rpm = (static_cast<float>(count) * 60.0) / ((interval / 1000.0) * pulsesPerRevolution);
+    rpmArray[intervalIndex] = rpm;
+    totalRpm += rpm;
+
+    // Debug print for each interval
+    Serial.print("Interval ");
+    Serial.print(intervalIndex + 1);
+    Serial.print(": RPM = ");
+    Serial.println(rpm);
+    Serial.print("Pulse Count: ");
+    Serial.println(count);
+
+    // Reset count and prepare for the next interval
+    count = 0;
+    prevTime = curTime;
+    intervalIndex++;
+
+    // After 10 intervals, calculate and display average RPM
+    if (intervalIndex == 10) {
+      float averageRpm = totalRpm / 10.0;
+      Serial.print("Average RPM: ");
+      Serial.println(averageRpm);
+
+      intervalIndex = 0;
+      totalRpm = 0;
+
+      while(true){}
+
+    }
+  }
+}
